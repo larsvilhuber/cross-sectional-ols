@@ -1,4 +1,5 @@
-
+include config.do
+use appelloyle_jprdata.dta, clear
 
 *Table 1: final equations
 
