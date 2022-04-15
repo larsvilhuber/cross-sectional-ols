@@ -1,0 +1,154 @@
+------------------------------------------------------------------------------------------------------------
+      name:  ldi
+       log:  /project/logs/logfile_15_Apr_2022-21_40_13-statauser.log
+  log type:  text
+ opened on:  15 Apr 2022, 21:40:13
+
+. 
+. /* It will provide some info about how and when the program was run */
+. /* See https://www.stata.com/manuals13/pcreturn.pdf#pcreturn */
+. local variant = cond(c(MP),"MP",cond(c(SE),"SE",c(flavor)) )  
+
+. // alternatively, you could use 
+. // local variant = cond(c(stata_version)>13,c(real_flavor),"NA")  
+. 
+. di "=== SYSTEM DIAGNOSTICS ==="
+=== SYSTEM DIAGNOSTICS ===
+
+. di "Stata version: `c(stata_version)'"
+Stata version: 17
+
+. di "Updated as of: `c(born_date)'"
+Updated as of: 13 Dec 2021
+
+. di "Variant:       `variant'"
+Variant:       MP
+
+. di "Processors:    `c(processors)'"
+Processors:    24
+
+. di "OS:            `c(os)' `c(osdtl)'"
+OS:            Unix 
+
+. di "Machine type:  `c(machine_type)'"
+Machine type:  PC (64-bit x86-64)
+
+. di "=========================="
+==========================
+
+. 
+. 
+. /* install any packages locally */
+. capture mkdir "$rootdir/ado"
+
+. sysdir set PERSONAL "$rootdir/ado/personal"
+
+. sysdir set PLUS     "$rootdir/ado/plus"
+
+. sysdir set SITE     "$rootdir/ado/site"
+
+. sysdir
+   STATA:  /usr/local/stata/
+    BASE:  /usr/local/stata/ado/base/
+    SITE:  /project/ado/site/
+    PLUS:  /project/ado/plus/
+PERSONAL:  /project/ado/personal/
+OLDPLACE:  ~/ado/
+
+. 
+. /* add packages to the macro */
+. 
+.     
+.     if !missing("`ssc_packages'") {
+.         foreach pkg in `ssc_packages' {
+  2.             capture which `pkg'
+  3.             if _rc == 111 {                 
+  4.                dis "Installing `pkg'"
+  5.                 ssc install `pkg', replace
+  6.             }
+  7.             which `pkg'
+  8.         }
+.     }
+
+. 
+. /*==============================================================================================*/
+. /* If you need to "net install" packages, add lines to this section                             */
+.     * Install packages using net
+.     *  net install yaml, from("https://raw.githubusercontent.com/gslab-econ/stata-misc/master/")
+.     
+. /* other commands, rarely used */
+. 
+. /*==============================================================================================*/
+. /* after installing all packages, it may be necessary to issue the mata mlib index command */
+. /* This should always be the LAST command after installing all packages                    */
+. 
+.         mata: mata mlib index
+.mlib libraries to be searched are now
+    lmatabase;lmataopt;lmatamcmc;lmataado;lmatasvy;lmatamixlog;lmatasp;lmatameta;lmatapath;lmatafc;lmatalass
+> o;lmatanumlib;lmatatab;lmatasem;lmatacollect;lmataerm;lmatapostest;lmatami;lmatapss;lmatagsem;lmatabma
+
+. 
+. 
+. 
+. //log using "C:\My Documents\Alex\JPR\braith_jpr_RR.log", replace  
+. #delimit;
+delimiter now ;
+. set more off;
+
+. ***********************************************************;
+. * Braith (Nov 1st, 2005) For JPR: the geog spread of mids *;
+. ***********************************************************;
+. //cd "C:\My Documents\Alex\JPR\";
+> set mem 100m;
+
+. set matsize 100;
+
+. use file48280_braith_final_data.dta;
+
+. summ;
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     dispnum |        296    4162.939    137.0225       3551       4343
+      dyadid |        296    429818.2    241178.3       2020     910940
+      ccode1 |        296    429.2905    241.0203          2        910
+      ccode2 |        296    527.6858    220.9013         20        986
+        year |        296    1996.764    2.685457       1992       2001
+-------------+---------------------------------------------------------
+logcap_ratio |        296    1.734482      1.3901   .0478909   7.912423
+      allies |        296    .3344595    .4726001          0          1
+ joint_democ |        296    .1689189    .3753148          0          1
+   incidents |        296    6.378378    24.62723          1        372
+   territory |        296    .3986486    .4904493          0          1
+-------------+---------------------------------------------------------
+         sdd |        296    70.53266    131.8077          5    804.575
+      radius |        296    113.7358    268.0997   3.829941   1952.803
+final_host~e |        296    1.648649    .5806468          1          3
+   jointsize |        296     5523885     8043434    31013.7   5.68e+07
+log_radius~a |        296    6.929547    3.620608   3.830429   16.29877
+-------------+---------------------------------------------------------
+log_sdd_area |        296    6.729704     3.28122   4.363605   14.52536
+   pop_dense |        296    5.735374    11.90892          0   96.04142
+       water |        296    .1790541    .3840469          0          1
+    logdurat |        296    3.005525    2.194797          0   8.068403
+    cwpceyrs |        296    7.023649     15.9281          0        159
+-------------+---------------------------------------------------------
+     host_mt |        296    29.43761    27.05692          0   95.70526
+    host_for |        296    29.24667    29.26324          0    90.8582
+host_resou~e |        296    .3682432    .4831447          0          1
+  bord_vital |        296    .6758345    .5335386          0          2
+log_joints~e |        296    14.38852    1.671904   10.34218   17.85464
+-------------+---------------------------------------------------------
+ _est_model1 |        296           1           0          1          1
+
+.  corr logcap_ratio allies joint_democ territory logsize  host_mt host_for water cwpceyrs bord_vital  host_
+> resource incidents logdurat final_hostile;
+variable logsize not found
+r(111);
+
+end of do-file
+
+r(111);
+
+
+. exit, clear
